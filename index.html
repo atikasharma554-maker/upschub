@@ -1,0 +1,199 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>UPSC Smart Prep</title>
+<style>
+body {
+  font-family: Arial;
+  margin: 0;
+  background: #f4f6f9;
+}header {
+background: #1e3a8a;
+color: white;
+padding: 15px;
+text-align: center;
+}
+
+nav {
+display: flex;
+background: #111827;
+}
+
+nav button {
+flex: 1;
+padding: 12px;
+border: none;
+background: #111827;
+color: white;
+cursor: pointer;
+}
+
+nav button:hover {
+background: #374151;
+}
+
+.section {
+display: none;
+padding: 20px;
+}
+
+.active {
+display: block;
+}
+
+.card {
+background: white;
+padding: 15px;
+margin: 10px 0;
+border-radius: 8px;
+}
+
+h3 {
+cursor: pointer;
+}
+
+input[type="text"] {
+width: 100%;
+padding: 10px;
+margin: 5px 0;
+}
+
+button {
+padding: 8px 12px;
+margin-top: 5px;
+}
+
+/* Timer */
+#timer {
+font-size: 28px;
+margin: 10px 0;
+}
+</style>
+
+</head><body><header>
+<h1>UPSC Smart Prep</h1>
+</header><nav>
+<button onclick="show('dashboard')">Dashboard</button>
+<button onclick="show('syllabus')">Syllabus</button>
+<button onclick="show('current')">Current Affairs</button>
+<button onclick="show('notes')">PIB Notes</button>
+<button onclick="show('ai')">AI Mentor</button>
+</nav><!-- DASHBOARD --><div id="dashboard" class="section active">
+<div class="card">
+<h2>Study Timer</h2>
+<div id="timer">00:00:00</div>
+<button onclick="startTimer()">Start</button>
+<button onclick="stopTimer()">Log</button>
+<p>Total Hours: <span id="hours">0</span></p>
+</div>
+</div><!-- SYLLABUS --><div id="syllabus" class="section">
+<div class="card">
+<h2>Syllabus</h2><h3 onclick="toggle(this)">GS Paper I</h3>
+<div class="content">
+<label><input type="checkbox"> History</label><br>
+<label><input type="checkbox"> Geography</label><br>
+<label><input type="checkbox"> Society</label>
+</div><h3 onclick="toggle(this)">GS Paper II</h3>
+<div class="content">
+<label><input type="checkbox"> Polity</label><br>
+<label><input type="checkbox"> Governance</label>
+</div></div>
+</div><!-- CURRENT AFFAIRS --><div id="current" class="section">
+<div class="card">
+<h2>Current Affairs</h2><input type="text" id="search" placeholder="Search..." onkeyup="searchCA()"><ul id="caList">
+<li>G20 Summit <button onclick="askAI('G20 Summit')">Ask AI →</button></li>
+<li>Article 356 <button onclick="askAI('Article 356')">Ask AI →</button></li>
+</ul></div>
+</div><!-- NOTES --><div id="notes" class="section">
+<div class="card">
+<h2>PIB Notes</h2><input type="text" id="noteInput" placeholder="Write note...">
+<button onclick="addNote()">+ Add Note</button><ul id="notesList"></ul>
+</div>
+</div><!-- AI --><div id="ai" class="section">
+<div class="card">
+<h2>AI Mentor</h2>
+<input type="text" id="aiInput" placeholder="Ask UPSC question...">
+<button onclick="aiAnswer()">Ask →</button>
+<p id="aiOutput"></p>
+</div>
+</div><script>
+
+/* Navigation */
+function show(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* Toggle syllabus */
+function toggle(el) {
+  let content = el.nextElementSibling;
+  content.style.display = content.style.display === "block" ? "none" : "block";
+}
+
+/* Timer */
+let timer, seconds = 0;
+
+function startTimer() {
+  timer = setInterval(() => {
+    seconds++;
+    document.getElementById('timer').innerText =
+      new Date(seconds * 1000).toISOString().substr(11, 8);
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(timer);
+  let hours = localStorage.getItem('hours') || 0;
+  hours = parseFloat(hours) + (seconds / 3600);
+  localStorage.setItem('hours', hours);
+  document.getElementById('hours').innerText = hours.toFixed(2);
+  seconds = 0;
+}
+
+/* Load hours */
+document.getElementById('hours').innerText = localStorage.getItem('hours') || 0;
+
+/* Notes */
+function addNote() {
+  let note = document.getElementById('noteInput').value;
+  let notes = JSON.parse(localStorage.getItem('notes') || "[]");
+  notes.push(note);
+  localStorage.setItem('notes', JSON.stringify(notes));
+  displayNotes();
+}
+
+function displayNotes() {
+  let notes = JSON.parse(localStorage.getItem('notes') || "[]");
+  let list = document.getElementById('notesList');
+  list.innerHTML = "";
+  notes.forEach(n => {
+    let li = document.createElement('li');
+    li.innerText = n;
+    list.appendChild(li);
+  });
+}
+displayNotes();
+
+/* Current Affairs Search */
+function searchCA() {
+  let val = document.getElementById('search').value.toLowerCase();
+  document.querySelectorAll('#caList li').forEach(li => {
+    li.style.display = li.innerText.toLowerCase().includes(val) ? "" : "none";
+  });
+}
+
+/* AI Mentor (basic demo) */
+function aiAnswer() {
+  let q = document.getElementById('aiInput').value;
+  document.getElementById('aiOutput').innerText =
+    "AI Answer (demo): " + q;
+}
+
+/* Ask AI shortcut */
+function askAI(topic) {
+  show('ai');
+  document.getElementById('aiInput').value = topic;
+}
+
+</script></body>
+</html>
